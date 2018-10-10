@@ -1,6 +1,10 @@
 public class Buffer {
     String value;
 
+    public Buffer() {
+        value = null;
+    }
+
     public synchronized void put(String str) {
         while (value != null) {
             try {
@@ -10,7 +14,7 @@ public class Buffer {
             }
         }
         value = str;
-        notify();
+        notifyAll();
     }
 
     public synchronized String take() {

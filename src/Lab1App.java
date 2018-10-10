@@ -1,5 +1,6 @@
 import com.sun.org.apache.regexp.internal.RE;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,9 +27,7 @@ public class Lab1App {
 
         threads.forEach(Thread::start);
 
-        Thread.sleep(5_000);
-//        System.out.println(prod.isAlive());
-//
-//        threads.forEach(thread -> System.out.println(thread.isAlive()));
+        prod.join();
+        System.out.println("Producer finished");
     }
 }
