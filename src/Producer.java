@@ -6,10 +6,8 @@ public class Producer implements Runnable {
     }
 
     public void run() {
-
-        for(int i = 0;  i < 100;   i++) {
-            buffer.put("message "+i);
+        for (int i = 1; i <= Lab1App.MESSAGES; i++) {
+            buffer.put("message " + i);
         }
-
     }
 }

@@ -1,31 +1,34 @@
 import com.sun.org.apache.regexp.internal.RE;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+
 public class Lab1App {
     final static long REPEATS = 100000000;
 
+    public final static long MESSAGES = 100;
+    public final static long CONSUMERS = 5;
+    public final static long MSG_PER_CONS = 20;
+
     public static void main(String args[]) throws InterruptedException {
-        Counter c = new Counter();
-        System.out.println("Initial counter value: " + c.getValue());
+        System.out.println("Starting producer and consumer");
+        Buffer b = new Buffer();
+        Thread prod = new Thread(new Producer(b));
+        prod.start();
 
-        Thread increaser = new Thread(() -> {
-            for(long i = 0; i < REPEATS; ++i) {
-                c.increase();
-            }
-        });
-        Thread decreaser = new Thread(() -> {
-            for(long i = 0; i < REPEATS; ++i) {
-                c.decrease();
-            }
-        });
+        List<Thread> threads = new ArrayList<>();
+        for(long i = 0; i < CONSUMERS; ++i) {
+            threads.add(new Thread(new Consumer(b, i)));
+        }
 
-        System.out.println("Looping " + REPEATS + " times...");
+        threads.forEach(Thread::start);
 
-        increaser.start();
-        decreaser.start();
-
-        increaser.join();
-        decreaser.join();
-
-        System.out.println("Final counter value: " + c.getValue());
+        Thread.sleep(5_000);
+//        System.out.println(prod.isAlive());
+//
+//        threads.forEach(thread -> System.out.println(thread.isAlive()));
     }
 }

@@ -1,13 +1,30 @@
 public class Buffer {
     String value;
 
-    public void put(String str) {
+    public synchronized void put(String str) {
+        while (value != null) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         value = str;
+        notify();
     }
 
-    public String take() {
+    public synchronized String take() {
+        while (value == null) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
         String v = value;
         value = null;
+        notify();
         return v;
     }
 }
