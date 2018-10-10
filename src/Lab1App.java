@@ -5,7 +5,7 @@ public class Lab1App {
 
     public static void main(String args[]) throws InterruptedException {
         Counter c = new Counter();
-        System.out.println(REPEATS);
+        System.out.println("Initial counter value: " + c.getValue());
 
         Thread increaser = new Thread(() -> {
             for(long i = 0; i < REPEATS; ++i) {
@@ -18,12 +18,14 @@ public class Lab1App {
             }
         });
 
+        System.out.println("Looping " + REPEATS + " times...");
+
         increaser.start();
         decreaser.start();
 
         increaser.join();
         decreaser.join();
 
-        System.out.println(c.getValue());
+        System.out.println("Final counter value: " + c.getValue());
     }
 }
