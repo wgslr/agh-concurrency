@@ -8,18 +8,21 @@ public class Buffer {
     public synchronized void put(String str) {
         while (value != null) {
             try {
+                notify();
                 wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         value = str;
-        notifyAll();
+        notify();
     }
 
     public synchronized String take() {
         while (value == null) {
             try {
+
+                notify();
                 wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();
