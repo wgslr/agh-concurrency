@@ -6,17 +6,24 @@ public class Customer implements Runnable {
 
     private int id;
     private Shop shop;
+    private Random random;
 
     public Customer(Shop shop) {
         this.shop = shop;
         id = ++lastId;
+        this.random = new Random();
     }
 
     @Override
     public void run() {
-        System.out.println("Customer " + id + " waiting for basket");
-        shop.provideBasket();
+        try {
+            Thread.sleep(random.nextInt(500));
+        } catch (InterruptedException e) {
+        }
 
+        System.out.println("Customer " + id + " waiting for basket");
+
+        shop.provideBasket();
         doShopping();
 
         System.out.println("Customer " + id + " finished shopping");
@@ -24,13 +31,11 @@ public class Customer implements Runnable {
     }
 
     private void doShopping() {
-        Random delayGenerator = new Random();
-
-        System.out.println("Customer " + id + " shopping");
+        int delay = random.nextInt(1_000);
+        System.out.println("Customer " + id + " shopping for " + delay + "ms");
         try {
-            Thread.sleep(delayGenerator.nextInt(5_000));
+            Thread.sleep(delay);
         } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 

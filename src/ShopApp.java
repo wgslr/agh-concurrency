@@ -11,7 +11,6 @@ public class ShopApp {
     public static void main(String args[]) throws InterruptedException {
         Shop s = new Shop(BASKETS);
         List<Thread> customers = new ArrayList<>();
-        Random delayGenerator = new Random();
 
         for (int i = 0; i < CUSTOMERS; ++i) {
             Thread t = new Thread(new Customer(s));
