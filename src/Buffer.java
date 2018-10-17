@@ -21,7 +21,6 @@ public class Buffer {
     public synchronized String take() {
         while (value == null) {
             try {
-
                 notify();
                 wait();
             } catch (InterruptedException e) {
