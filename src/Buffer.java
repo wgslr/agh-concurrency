@@ -1,36 +1,29 @@
 public class Buffer {
     String value;
+    Semaphore writeSem;
+    Semaphore readSem;
 
     public Buffer() {
         value = null;
+        this.writeSem = new Semaphore(true);
+        this.readSem = new Semaphore(false);
     }
 
-    public synchronized void put(String str) {
-        while (value != null) {
-            try {
-                notify();
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+    public void put(String str) {
+        writeSem.P();
+
         value = str;
-        notify();
+
+        readSem.V();
     }
 
-    public synchronized String take() {
-        while (value == null) {
-            try {
-                notify();
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+    public String take() {
+        readSem.P();
 
         String v = value;
         value = null;
-        notify();
+
+        writeSem.V();
         return v;
     }
 }
