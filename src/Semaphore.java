@@ -7,9 +7,8 @@ public class Semaphore {
 
     public synchronized void P() {
         while (!this.state) {
-            notify();
-
             try {
+                notify();
                 wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();
