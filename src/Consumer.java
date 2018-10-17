@@ -14,7 +14,7 @@ public class Consumer implements Runnable {
             String message = null;
             message = buffer.take();
             ++count;
-            System.out.println("Consumer " + id + " received " + count + "th: " + message);
+            System.out.println("Consumer " + id + " received " + count + "th " + message);
         }
 
     }
