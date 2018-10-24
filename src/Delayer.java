@@ -7,7 +7,7 @@ public class Delayer {
     private static Random generator = new Random();
 
     public static boolean randomDelay(int maxMs) {
-        randomDelay(0, maxMs);
+        return randomDelay(0, maxMs);
     }
 
     /**
