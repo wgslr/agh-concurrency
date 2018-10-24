@@ -2,11 +2,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PrintersApp {
-    public final static int CLIENTS = 8;
-    public final static int PRINTERS = 3;
+    public final static int CLIENTS = 20;
+    public final static int TABLES = 5;
 
     public static void main(String argv[]) throws InterruptedException {
-        PrinterMonitor pm = new PrinterMonitor(PRINTERS);
 
 
         List<Thread> threads = new ArrayList<>();

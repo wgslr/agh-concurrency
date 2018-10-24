@@ -3,11 +3,9 @@ import com.sun.org.apache.xml.internal.serialize.Printer;
 public class Client implements Runnable {
 
     private int id;
-    private PrinterMonitor pm;
+    private int pair;
 
-    public Client(int id, PrinterMonitor pm) {
-        this.id = id;
-        this.pm = pm;
+    public Client(int id, int pair) {
     }
 
     public void run() {
