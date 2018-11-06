@@ -68,6 +68,7 @@ public class Waiter {
         pairSitting = pairId;
     }
 
+    // @fixme ensure only sitter leaves?
     public void leave() {
         lock.lock();
         try {

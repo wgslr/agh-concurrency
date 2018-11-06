@@ -2,40 +2,36 @@ import com.sun.org.apache.xml.internal.serialize.Printer;
 
 public class Client implements Runnable {
 
+    private Waiter waiter;
     private int id;
     private int pair;
+    private int loops;
 
-    public Client(int id, int pair) {
+    public Client(Waiter waiter, int id, int pair, int loops) {
+        this.waiter = waiter;
+        this.id = id;
+        this.pair = pair;
+        this.loops = loops;
     }
 
     public void run() {
-
-        while (true) {
+        while (loops-- > 0) {
             Delayer.randomDelay(100, 1000);
 
-            PrinterTask t = new PrinterTask(1500,
-                    "Printed document reqeuested Anno Domini " + java.time.LocalDateTime.now());
-            int printerId = 0;
+            log("Requesting table");
+            boolean sat = waiter.requestTable(pair);
+            assert sat;
+            log("Sat at the table");
 
-            try {
-                System.out.println("Client " + id + " waits for a printer");
-                printerId = pm.reserve();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            print(printerId, t);
-            pm.free(printerId);
+            Delayer.randomDelay(500, 3000);
 
-            Delayer.randomDelay(3000);
+            log("Leaving the table");
+            waiter.leave();
         }
 
     }
 
-    private void print(int printerId, PrinterTask task) {
-        System.out.println("Client " + id + " started printing on printer " + printerId + " of '" + task.content +
-                "'");
-        Delayer.wait(task.durationMs);
-        System.out.println("Client " + id + " finished printing on printer " + printerId + " of " +
-                "'" + task.content + "'");
+    private void log(String text) {
+        System.out.println("Client " + id + " (pair " + pair + "): " + text);
     }
 }
