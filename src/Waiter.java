@@ -20,6 +20,7 @@ public class Waiter {
     private Queue<Integer> pairsWaiting = new LinkedList<>();
 
     private Integer pairSitting = null;
+    private int sittingCount = 0;
 
     public Waiter() {
 
@@ -41,16 +42,18 @@ public class Waiter {
                 pairToCond.put(pairId, myCond);
             }
 
-            // @fixme do not wait if already available
-            while (!(pairSitting == null && pairId.equals(pairsWaiting.peek())
-                    || pairId.equals(pairSitting))) {
+            // allows transition state when first pair member sits but the pair
+            // is not popped from queue as its waiting for the second one - this one
+            while (!(
+                    pairId.equals(pairsWaiting.peek()) &&
+                            (pairSitting == null || pairId.equals(pairSitting)))
+            ) {
                 myCond.await();
             }
 
-            if (pairSitting == null) {
-                // otherwise the partner already arranged sitting
-                sit(pairId);
-            }
+            myCond.signalAll();
+
+            sit(pairId);
 
             return true;
         } catch (InterruptedException e) {
@@ -62,21 +65,35 @@ public class Waiter {
     }
 
     private void sit(Integer pairId) {
-        Integer popped = pairsWaiting.remove();
-        pairToCond.remove(pairId);
-        assert pairId.equals(popped);
         pairSitting = pairId;
+        sittingCount++;
+        assert sittingCount <= 2;
+
+        if (sittingCount == 2) {
+            Integer popped = pairsWaiting.remove();
+            pairToCond.remove(pairId);
+
+            assert pairId.equals(popped);
+        }
     }
 
     // @fixme ensure only sitter leaves?
-    public void leave() {
+    public void leave(Integer pairId) {
         lock.lock();
         try {
-            pairSitting = null;
+            if(!pairId.equals(pairSitting)) {
+                throw new RuntimeException("Cannot leave when other pair is sitting!");
+            }
 
-            Integer nextPair = pairsWaiting.peek();
-            if (nextPair != null) {
-                pairToCond.get(nextPair).signalAll();
+            --sittingCount;
+
+            assert sittingCount >= 0;
+            if (sittingCount == 0) {
+                pairSitting = null;
+                Integer nextPair = pairsWaiting.peek();
+                if (nextPair != null) {
+                    pairToCond.get(nextPair).signalAll();
+                }
             }
         } finally {
             lock.unlock();

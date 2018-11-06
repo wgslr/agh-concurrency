@@ -26,7 +26,7 @@ public class Client implements Runnable {
             Delayer.randomDelay(500, 3000);
 
             log("Leaving the table");
-            waiter.leave();
+            waiter.leave(pair);
         }
 
     }
