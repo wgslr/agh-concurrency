@@ -5,6 +5,13 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/*
+First member of a pair arriving is assigned a Condition object
+and placed in the pool of waiting lovers.
+When the second one comes in their pair id is placed in the queue.
+As soon as the table's empty first pair in the queue is placed at the table.
+ */
+
 public class Waiter {
 
     private final Lock lock = new ReentrantLock();
