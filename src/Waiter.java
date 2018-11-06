@@ -15,6 +15,8 @@ public class Waiter {
     HashMap<Integer, Condition> pairToCond;
     HashMap<Integer, Integer> pairToCount;
 
+    int sitting = 0;
+
     public Waiter() {
 
     }
@@ -26,6 +28,17 @@ public class Waiter {
         lock.lock();
 
         try {
+            pairToCond.computeIfAbsent(pairId, x -> lock.newCondition());
+            Condition myCond = pairToCond.get(pairId);
+
+            while(sitting > 0) {
+                try {
+                    myCond.await();
+                } catch (InterruptedException e) {
+                    return false;
+                }
+            }
+
             if (pairToCond.containsKey(pairId)) {
                 Condition partner = pairToCond.remove(pairId);
                 newcomer = pairId;

@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class PrintersApp {
+public class WaiterApp {
     public final static int CLIENTS = 20;
     public final static int TABLES = 5;
 
