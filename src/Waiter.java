@@ -1,6 +1,6 @@
-import javafx.util.Pair;
-
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -16,13 +16,10 @@ public class Waiter {
 
     private final Lock lock = new ReentrantLock();
 
-    Condition tableFreeCond = lock.newCondition();
+    private HashMap<Integer, Condition> pairToCond = new HashMap<>();
+    private Queue<Integer> pairsWaiting = new LinkedList<>();
 
-
-    HashMap<Integer, Condition> pairToCond;
-    HashMap<Integer, Integer> pairToCount;
-
-    int sitting = 0;
+    private Integer pairSitting = null;
 
     public Waiter() {
 
@@ -30,43 +27,60 @@ public class Waiter {
 
     // TODO timeout
     public boolean requestTable(Integer pairId) {
-        // @FIXME doesn't work when table is taken and both people are present
-
         lock.lock();
 
         try {
-            pairToCond.computeIfAbsent(pairId, x -> lock.newCondition());
-            Condition myCond = pairToCond.get(pairId);
+            Condition myCond;
+            if (pairToCond.containsKey(pairId)) {
+                // this is second process in a pair
+                myCond = pairToCond.get(pairId);
+                pairsWaiting.add(pairId);
 
-            while(sitting > 0) {
-                try {
-                    myCond.await();
-                } catch (InterruptedException e) {
-                    return false;
-                }
+            } else {
+                myCond = lock.newCondition();
+                pairToCond.put(pairId, myCond);
             }
 
-            if (pairToCond.containsKey(pairId)) {
-                Condition partner = pairToCond.remove(pairId);
-                newcomer = pairId;
-                partner.notify();
-                return true;
-            } else {
+            // @fixme do not wait if already available
+            while (!(pairSitting == null && pairId.equals(pairsWaiting.peek())
+                    || pairId.equals(pairSitting))) {
+                myCond.await();
+            }
 
-                Condition myCond = lock.newCondition();
-                pairToCond.put(pairId, myCond);
-                while (newcomer != pairId) {
-                    try {
-                        myCond.await();
-                    } catch (InterruptedException e) {
-                        return false;
-                    }
-                }
-                return true;
+            if (pairSitting == null) {
+                // otherwise the partner already arranged sitting
+                sit(pairId);
+            }
+
+            return true;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private void sit(Integer pairId) {
+        Integer popped = pairsWaiting.remove();
+        pairToCond.remove(pairId);
+        assert pairId.equals(popped);
+        pairSitting = pairId;
+    }
+
+    public void leave() {
+        lock.lock();
+        try {
+            pairSitting = null;
+
+            Integer nextPair = pairsWaiting.peek();
+            if (nextPair != null) {
+                pairToCond.get(nextPair).signalAll();
             }
         } finally {
             lock.unlock();
         }
+
     }
 }
 

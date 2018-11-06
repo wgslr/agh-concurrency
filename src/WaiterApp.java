@@ -3,7 +3,6 @@ import java.util.List;
 
 public class WaiterApp {
     public final static int CLIENTS = 20;
-    public final static int TABLES = 5;
 
     public static void main(String argv[]) throws InterruptedException {
 
