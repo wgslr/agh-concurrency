@@ -3,11 +3,12 @@ import java.util.List;
 
 public class FlowApp {
 
-    public final static int THREADS = 7;
+    public final static int THREADS = 10;
     public final static int CELLS = 100;
 
     public static void main(String argv[]) throws InterruptedException {
         Buffer b = new Buffer(CELLS);
+        System.out.println(b);
 
         List<Thread> threads = new ArrayList<>();
 
@@ -17,7 +18,7 @@ public class FlowApp {
             threads.add(new Thread(w));
         }
 
-        threads.forEach(Thread::start);
+        threads.forEach(t -> {Delayer.randomDelay(500, 2000); t.start();});
 
         for (Thread thread : threads) {
             thread.join();

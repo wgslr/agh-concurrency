@@ -3,6 +3,7 @@ public class Worker implements Runnable {
     String predecessor;
     String id;
 
+
     public Worker(Buffer buffer, String id, String predecessor) {
         this.buffer = buffer;
         this.id = id;
@@ -18,7 +19,7 @@ public class Worker implements Runnable {
             buffer.waitFor(i, predecessor);
             System.out.println(String.format("Worker %s working on %d", id, i));
 
-            Delayer.randomDelay(100, 3000);
+            Delayer.randomDelay(100, 1000);
 
             buffer.set(i, id);
             System.out.println(String.format("Worker %s set %d to %s\n%s", id, i, id, buffer));
