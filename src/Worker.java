@@ -1,18 +1,15 @@
-public class Worker implements Runnable {
+import java.util.Random;
+import java.util.function.Consumer;
 
-    public enum Type {
-        PRODUCER,
-        CONSUMER
-    }
+public class Worker implements Runnable {
 
     private final long Loops;
     private final long M;
-    private final Type t;
-    private final AbstractBuffer buffer;
+    private final Consumer<Long> action;
+    private final Random randomizer = new Random();
 
-    public Worker(Type t, AbstractBuffer buffer, long M, long Loops) {
-        this.t = t;
-        this.buffer = buffer;
+    public Worker(Consumer<Long> action, long M, long Loops) {
+        this.action = action;
         this.M = M;
         this.Loops = Loops;
     }
@@ -20,7 +17,8 @@ public class Worker implements Runnable {
     @Override
     public void run() {
         for (int i = 0 ; i < Loops; ++i){
-
+            long portion = randomizer.longs(1,1, M  + 1).findFirst().getAsLong();
+            action.accept(portion);
         }
     }
 }

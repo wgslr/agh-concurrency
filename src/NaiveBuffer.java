@@ -1,3 +1,4 @@
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -16,7 +17,9 @@ public class NaiveBuffer extends AbstractBuffer {
 
         try {
             while (freeSpace() < portions) {
-                contentChanged.await();
+                if (!contentChanged.await(ProdConsApp.LOCK_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                    return;
+                }
             }
             contentCount += portions;
             contentChanged.signalAll();
@@ -33,7 +36,9 @@ public class NaiveBuffer extends AbstractBuffer {
 
         try {
             while (contentCount < portions) {
-                contentChanged.await();
+                if (!contentChanged.await(ProdConsApp.LOCK_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                    return;
+                }
             }
             contentCount -= portions;
             contentChanged.signalAll();
