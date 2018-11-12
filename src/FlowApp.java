@@ -18,7 +18,10 @@ public class FlowApp {
             threads.add(new Thread(w));
         }
 
-        threads.forEach(t -> {Delayer.randomDelay(500, 2000); t.start();});
+        threads.forEach(t -> {
+            Delayer.randomDelay(500, 2000);
+            t.start();
+        });
 
         for (Thread thread : threads) {
             thread.join();

@@ -27,7 +27,6 @@ public class Buffer {
 
     public void waitFor(int position, String expectedVal) {
         Lock lock = locks.get(position);
-//        System.out.println("Locking " + position);
         lock.lock();
 
         try {
@@ -38,25 +37,20 @@ public class Buffer {
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
-//            System.out.println("Unlocking " + position);
             lock.unlock();
         }
     }
 
     public void set(int position, String value) {
         Lock lock = locks.get(position);
-//        System.out.println("Locking " + position);
         lock.lock();
-//        System.out.println("Locked " + position);
 
         try {
             Condition cond = valueChangedConds.get(position);
             values.set(position, value);
             cond.signalAll();
         } finally {
-//            System.out.println("Unlocking " + position);
             lock.unlock();
-//            System.out.println("Unlocked " + position);
         }
     }
 
