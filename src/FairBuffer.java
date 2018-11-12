@@ -1,8 +1,5 @@
-import com.sun.corba.se.spi.orbutil.threadpool.Work;
-
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
@@ -14,7 +11,8 @@ public class FairBuffer extends AbstractBuffer {
     private Condition contentChanged = lock.newCondition();
     private AtomicLong nextId = new AtomicLong();
 
-    private Queue<Long> clients = new LinkedList<>();
+    private Queue<Long> putClients = new LinkedList<>();
+    private Queue<Long> getClients = new LinkedList<>();
 
     public FairBuffer(long size) {
         super(size);
@@ -26,11 +24,14 @@ public class FairBuffer extends AbstractBuffer {
 
         try {
             Long id = makeOperationId();
-            clients.add(id);
+            putClients.add(id);
 
-            while (!id.equals(clients.peek()) || freeSpace() < portions) {
-                if (!contentChanged.await(ProdConsApp.LOCK_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
-                    return;
+            // when there is less than M space used always allow insert
+            while (freeSpace() < portions) {
+                while (!(id.equals(getClients.peek()) || contentCount < size / 2)) {
+                    if (!contentChanged.await(ProdConsApp.LOCK_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                        return;
+                    }
                 }
             }
             contentCount += portions;
@@ -48,13 +49,16 @@ public class FairBuffer extends AbstractBuffer {
 
         try {
             Long id = makeOperationId();
-            clients.add(id);
+            getClients.add(id);
 
-            while (!id.equals(clients.peek()) || contentCount < portions) {
-                if (!contentChanged.await(ProdConsApp.LOCK_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
-                    return;
+            while (contentCount < portions) {
+                while (!(id.equals(getClients.peek()) || contentCount > size / 2)) {
+                    if (!contentChanged.await(ProdConsApp.LOCK_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                        return;
+                    }
                 }
             }
+
             contentCount -= portions;
             contentChanged.signalAll();
         } catch (InterruptedException e) {

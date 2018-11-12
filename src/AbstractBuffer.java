@@ -8,18 +8,24 @@ public abstract class AbstractBuffer {
 
     public final void put(Long portions) {
         long startNs = System.nanoTime();
-        do_put(portions);
-        long duration = System.nanoTime() - startNs;
+        System.out.println(String.format("start;  %s; put; %d", name(), portions));
 
-        System.out.println(String.format("%s; put; %d; %d", name(), portions, duration));
+        do_put(portions);
+
+        long duration = System.nanoTime() - startNs;
+        System.out.println(String.format("finish; %s; put; %d; %d; %d", name(), portions, duration,
+                contentCount));
     }
 
     public final void get(Long portions) {
         long startNs = System.nanoTime();
-        do_get(portions);
-        long duration = System.nanoTime() - startNs;
+        System.out.println(String.format("start;  %s; get; %d", name(), portions));
 
-        System.out.println(String.format("%s; get; %d; %d", name(), portions, duration));
+        do_get(portions);
+
+        long duration = System.nanoTime() - startNs;
+        System.out.println(String.format("finish; %s; get; %d; %d; %d", name(), portions,
+                duration, contentCount));
 
     }
 
