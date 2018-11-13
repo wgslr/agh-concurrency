@@ -16,9 +16,16 @@ public class Worker implements Runnable {
 
     @Override
     public void run() {
-        for (int i = 0 ; i < Loops; ++i){
-            long portion = randomizer.longs(1,1, M  + 1).findFirst().getAsLong();
-            action.accept(portion);
+        if(Loops  < 0) {
+            while(true){
+                long portion = randomizer.longs(1,1, M  + 1).findFirst().getAsLong();
+                action.accept(portion);
+            }
+        }else{
+            for (int i = 0 ; i < Loops; ++i){
+                long portion = randomizer.longs(1,1, M  + 1).findFirst().getAsLong();
+                action.accept(portion);
+            }
         }
     }
 }
