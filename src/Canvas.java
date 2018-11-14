@@ -7,15 +7,15 @@ public class Canvas extends JFrame {
     private BufferedImage I;
 //    private double zx, zy, cX, cY, tmp;
 
-    public Canvas(double vals[][], int color[]) {
+    public Canvas(int color[][]) {
         super("Mandelbrot Set");
 
         setBounds(100, 100, 800, 600);
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         I = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
-        for (int y = 0; y < vals.length; y++) {
-            for (int x = 0; x < vals[y].length; x++) {
+        for (int y = 0; y < color.length; y++) {
+            for (int x = 0; x < color[y].length; x++) {
 //                zx = zy = 0;
 //                cX = (x - 400) / ZOOM;
 //                cY = (y - 300) / ZOOM;
@@ -26,7 +26,7 @@ public class Canvas extends JFrame {
 //                    zx = tmp;
 //                    iter--;
 //                }
-                int c = color[y * vals[y].length + x];
+                int c = color[y][x];
                 I.setRGB(x, y, c | (c << 8));
             }
         }
