@@ -1,14 +1,51 @@
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 public class MandelbrotApp {
+
+
     public static void main(String argv[]) {
-//
-        int color[][] = new int[600][800];
-        System.out.println(color.length);
-        for (int y = 0; y < color.length; y++) {
-            for (int x = 0; x < color[y].length; x++) {
-                color[y][x] = Mandelbrot.colorForCoords(x,y);
-            }
+        int ys = 600;
+        int xs = 800;
+        int color[][] = new int[ys][xs];
+//        System.out.println(color.length);
+//        for (int y = 0; y < color.length; y++) {
+//            for (int x = 0; x < color[y].length; x++) {
+//                color[y][x] = Mandelbrot.colorForCoords(x, y);
+//            }
+//        }
+
+        long start = System.nanoTime();
+
+        int tasksCnt = 4;
+        List<Future<?>> results = new LinkedList<>();
+
+        ExecutorService es = Executors.newFixedThreadPool(tasksCnt);
+        for (int i = 0; i < tasksCnt; ++i) {
+            Task.Area a = new Task.Area(i * (xs / tasksCnt), (i + 1) * (xs / tasksCnt) - 1,
+                    i * (ys / tasksCnt), (i + 1) * (ys / tasksCnt) - 1);
+            Task t = new Task(a, color);
+
+            results.add(es.submit(t));
         }
+
+        results.forEach(f -> {
+            try {
+                f.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        });
+
+        long end = System.nanoTime();
+
+        System.out.println(end - start);
 
         new Canvas(color).setVisible(true);
     }
+
 }
