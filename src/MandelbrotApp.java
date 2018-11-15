@@ -21,13 +21,16 @@ public class MandelbrotApp {
 
         long start = System.nanoTime();
 
-        int tasksCnt = 4;
+        int tasksCnt = 2;
+        int tasksCntSq = 4;
         List<Future<?>> results = new LinkedList<>();
 
         ExecutorService es = Executors.newFixedThreadPool(tasksCnt);
+
+
         for (int i = 0; i < tasksCnt; ++i) {
-            Task.Area a = new Task.Area(i * (xs / tasksCnt), (i + 1) * (xs / tasksCnt) - 1,
-                    i * (ys / tasksCnt), (i + 1) * (ys / tasksCnt) - 1);
+            Task.Area a = new Task.Area(i * (xs / 2), (i + 1) * (xs / 2) - 1,
+                    i * (ys / 2), (i + 1) * (ys / 2) - 1);
             Task t = new Task(a, color);
 
             results.add(es.submit(t));
