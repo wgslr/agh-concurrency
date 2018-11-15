@@ -1,4 +1,6 @@
-public class ColorMatrix {
+import java.util.Iterator;
+
+public class ColorMatrix implements Iterable<ColorMatrix.Coord> {
 
     public class Coord {
         public final int continuous;
@@ -20,6 +22,11 @@ public class ColorMatrix {
             return continuous / width;
         }
 
+        public int getValue() {
+            return get(getX(), getY());
+        }
+
+
         public Coord next() {
             return new Coord(continuous + 1);
         }
@@ -27,9 +34,9 @@ public class ColorMatrix {
     }
 
 
-    int width;
-    int height;
-    int colors[][];
+    public final int width;
+    public final int height;
+    private int colors[][];
 
     public ColorMatrix(int width, int height) {
         this.width = width;
@@ -37,7 +44,20 @@ public class ColorMatrix {
         this.colors = new int[height][width];
     }
 
+    public int get(int x, int y) {
+        return colors[y][x];
+    }
+
+    public int getLength(){
+        return width * height;
+    }
+
     public void set(int x, int y, int value) {
         colors[y][x] = value;
+    }
+
+    @Override
+    public Iterator<Coord> iterator() {
+        return new CoordSpan(new Coord(0, 0), width * height).iterator();
     }
 }

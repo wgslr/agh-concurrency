@@ -1,8 +1,8 @@
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class CoordSpan implements Iterable<Object> {
-    public class CoordIterator implements Iterator {
+public class CoordSpan implements Iterable<ColorMatrix.Coord> {
+    public class CoordIterator implements Iterator<ColorMatrix.Coord> {
         ColorMatrix.Coord current;
 
         public CoordIterator(ColorMatrix.Coord current) {
@@ -15,7 +15,7 @@ public class CoordSpan implements Iterable<Object> {
         }
 
         @Override
-        public Object next() {
+        public ColorMatrix.Coord next() {
             if (hasNext()) {
                 ColorMatrix.Coord toReturn = current;
                 current = current.next();
@@ -36,7 +36,7 @@ public class CoordSpan implements Iterable<Object> {
     }
 
     @Override
-    public Iterator<Object> iterator() {
+    public Iterator<ColorMatrix.Coord> iterator() {
         return new CoordIterator(first);
     }
 
