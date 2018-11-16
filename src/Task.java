@@ -1,31 +1,19 @@
 public class Task implements Runnable {
 
-    public static class Area {
-        public final int minX, maxX;
-        public final int minY, maxY;
+    private final ColorMatrix colorMatrix;
+    private final CoordSpan span;
 
-        public Area(int minX, int maxX, int minY, int maxY) {
-            this.minX = minX;
-            this.maxX = maxX;
-            this.minY = minY;
-            this.maxY = maxY;
-        }
-    }
-
-    private final Area area;
-    private int colors[][];
-
-    public Task(Area a, int colors[][]) {
-        area = a;
-        this.colors = colors;
+    public Task(ColorMatrix cm, CoordSpan span) {
+        this.colorMatrix = cm;
+        this.span = span;
     }
 
     @Override
     public void run() {
-        for (int x = area.minX; x <= area.maxX; ++x){
-            for (int y = area.minY; y <= area.maxY; ++y){
-                colors[y][x] = Mandelbrot.colorForCoords(x,y);
-            }
+        for (ColorMatrix.Coord c : span) {
+            int x = c.getX();
+            int y = c.getY();
+            colorMatrix.set(x, y, Mandelbrot.colorForCoords(x, y));
         }
     }
 

@@ -44,11 +44,19 @@ public class ColorMatrix implements Iterable<ColorMatrix.Coord> {
         this.colors = new int[height][width];
     }
 
+    public Coord getCoord(int x, int y) {
+        return new Coord(x, y);
+    }
+
+    public Coord getCoord(int continous) {
+        return new Coord(continous);
+    }
+
     public int get(int x, int y) {
         return colors[y][x];
     }
 
-    public int getLength(){
+    public int getLength() {
         return width * height;
     }
 
