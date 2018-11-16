@@ -1,10 +1,7 @@
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,7 +23,7 @@ public class MandelbrotApp {
             this.tasks = tasks;
         }
 
-        public void run() {
+        public void run() throws InterruptedException {
 
             ColorMatrix cm = new ColorMatrix(WIDTH, HEIGHT);
             ExecutorService es = Executors.newFixedThreadPool(threads);
@@ -39,17 +36,9 @@ public class MandelbrotApp {
             System.out.println(String.format("Start %d threads %d tasks", threads, tasks));
             long start = System.nanoTime();
 
-            List<Future<?>> results = tasksList.stream()
-                    .map(es::submit)
-                    .collect(Collectors.toList());
-
-            results.forEach(f -> {
-                try {
-                    f.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
-            });
+            tasksList.stream().forEach(es::submit);
+            es.shutdown();
+            es.awaitTermination(10000, TimeUnit.MINUTES);
 
             long end = System.nanoTime();
 
@@ -58,13 +47,14 @@ public class MandelbrotApp {
             if (DISPLAY) {
                 Canvas c = new Canvas(cm);
                 c.setVisible(true);
-
             }
+
+            es.shutdown();
         }
     }
 
 
-    public static void main(String argv[]) {
+    public static void main(String argv[]) throws InterruptedException {
         List<TestCase> tests = new ArrayList<>();
 
         for (int threads : new int[]{1, 4, 8}) {
@@ -73,12 +63,14 @@ public class MandelbrotApp {
             }
         }
 
-        tests.forEach(TestCase::run);
+        for (TestCase test : tests) {
+            test.run();
+        }
     }
 
 
     private static List<CoordSpan> makeSpans(ColorMatrix cm, int count) {
-        List<CoordSpan> acc = new ArrayList();
+        List<CoordSpan> acc = new ArrayList<>();
         int length, toDispense;
         length = toDispense = cm.getLength();
         int pos = 0;

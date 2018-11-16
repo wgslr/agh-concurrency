@@ -2,7 +2,7 @@ import java.awt.Graphics;
 import javax.swing.JFrame;
 
 public class Mandelbrot extends JFrame {
-    private static final int MAX_ITER = 5700;
+    private static final int MAX_ITER = 10000;
     private static final double ZOOM = 200;
 
     public static int colorForCoords(int x, int y) {

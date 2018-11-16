@@ -2,13 +2,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class Canvas extends JDialog {
+public class Canvas extends JFrame {
 
     private BufferedImage I;
 
     public Canvas(ColorMatrix colors) {
-        super();
-        setModal(true);;
+        super("Mandelbrot");
 
         setBounds(100, 100, 800, 600);
         setResizable(false);
