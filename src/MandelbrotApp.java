@@ -55,16 +55,23 @@ public class MandelbrotApp {
 
 
     public static void main(String argv[]) throws InterruptedException {
-        List<TestCase> tests = new ArrayList<>();
+        if (argv.length == 0) {
+            List<TestCase> tests = new ArrayList<>();
 
-        for (int threads : new int[]{1, 4, 8}) {
-            for (int tasks : new int[]{threads, 10 * threads, WIDTH * HEIGHT}) {
-                tests.add(new TestCase(threads, tasks));
+            for (int threads : new int[]{1, 4, 8}) {
+                for (int tasks : new int[]{threads, 10 * threads, WIDTH * HEIGHT}) {
+                    tests.add(new TestCase(threads, tasks));
+                }
             }
-        }
 
-        for (TestCase test : tests) {
-            test.run();
+            for (TestCase test : tests) {
+                test.run();
+            }
+        } else {
+            int threads = Integer.parseInt(argv[0]);
+            int tasks = Integer.parseInt(argv[1]);
+            TestCase tc = new TestCase(threads, tasks);
+            tc.run();
         }
     }
 

@@ -4,7 +4,7 @@ TMP=/tmp/time.csv
 TMP2=/tmp/time2.csv
 TIME=$(date '+%Y%m%dT%H%M%S')
 FILE="$(pwd)/times/${TIME}.csv"
-REPEATS=100
+REPEATS=200
 TIMEOUT=60
 
 
