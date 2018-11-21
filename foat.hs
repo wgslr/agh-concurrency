@@ -1,3 +1,4 @@
+import Data.Maybe
 import qualified Data.Map as Map
 
 data Rel = Dep | Indep deriving (Show, Eq)
@@ -27,3 +28,15 @@ buildStacks' word = foldl (
   ) (initStacks word) (reverse word)
 
 initStacks = foldl (\m l -> Map.insert l [] m) Map.empty
+
+--result :: (Map.Map Char [Char]) -> [[Char]]
+--result = result' . Map.elems
+
+
+depend l = filter (\x -> rel x l == Dep)
+
+
+-- find letter on top of some stack
+headLetter :: (Map.Map Char [Char]) -> Maybe Char
+headLetter = listToMaybe . filter (/= '*') . map head . Map.elems
+    --Map.foldr (\(top:_) prev -> if top == '*' then prev else Just top) Nothing
