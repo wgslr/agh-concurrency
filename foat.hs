@@ -33,8 +33,8 @@ initStacks = foldl (\m l -> Map.insert l [] m) Map.empty
 --result = result' . Map.elems
 
 
-depend l = filter (\x -> rel x l == Dep)
-
+deps :: Char -> [Char] -> [Char]
+deps l = filter $ (== Dep) . rel l
 
 -- find letter on top of some stack
 headLetter :: (Map.Map Char [Char]) -> Maybe Char
