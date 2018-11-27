@@ -2,6 +2,7 @@ import Data.Maybe
 import qualified Data.Map as Map
 
 data Rel = Dep | Indep deriving (Show, Eq)
+type Stacks = Map.Map Char [Char]
 
 alphabet = "abcd"
 
@@ -15,11 +16,12 @@ rel 'b' 'c' = Indep
 rel 'b' 'd' = Dep
 rel 'c' 'd' = Dep
 rel x y = rel y x
-  
-genFoat word = buildStacks' (word) 
 
-buildStacks' :: [Char] -> (Map.Map Char [Char])
-buildStacks' word = foldl (
+foat :: [Char] -> [[Char]]
+foat = gather . buildStacks
+  
+buildStacks :: [Char] -> Stacks
+buildStacks word = foldl (
     \stacks  l -> 
       foldl (\stacks' alph -> if l == alph 
           then Map.insertWith (++) l [l] stacks'
@@ -27,16 +29,38 @@ buildStacks' word = foldl (
         ) stacks  alphabet
   ) (initStacks word) (reverse word)
 
+-- | Initialize empty stacks
+initStacks :: [Char] -> Stacks
 initStacks = foldl (\m l -> Map.insert l [] m) Map.empty
 
---result :: (Map.Map Char [Char]) -> [[Char]]
---result = result' . Map.elems
+-- | Pop values from stacks to generate result
+gather :: Stacks -> [[Char]]
+gather stacks = gather' stacks []
 
+-- | Pop values from stacks to generate result
+gather' :: Stacks -> [[Char]] -> [[Char]]
+gather' stacks results = case pop stacks of
+  ([], _) -> reverse results
+  (letters, stacks') -> gather' stacks' ((filter (/= '*') letters) : results) 
 
+-- | Get heads of all stacks
+pop :: (Map.Map Char [Char]) -> ([Char], Stacks)
+pop stacks = (concat . map head' . Map.elems $ stacks, Map.map tail' stacks)
+
+-- | List dependencies of a char in given alphabet
 deps :: Char -> [Char] -> [Char]
-deps l = filter $ (== Dep) . rel l
+deps l = filter ((== Dep) . rel l) 
 
--- find letter on top of some stack
-headLetter :: (Map.Map Char [Char]) -> Maybe Char
+-- | Find letter on top of some stack
+headLetter :: Stacks -> Maybe Char
 headLetter = listToMaybe . filter (/= '*') . map head . Map.elems
-    --Map.foldr (\(top:_) prev -> if top == '*' then prev else Just top) Nothing
+
+-- | Empty list-safe head
+head' :: [a] -> [a]
+head' [] = []
+head' (x:_) = [x]
+
+-- | Empty list-safe tail
+tail' :: [a] -> [a]
+tail' [] = []
+tail' (_:xs) = xs
