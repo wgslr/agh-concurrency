@@ -40,6 +40,8 @@ function task3(cb) {
 function loop(n) {
     if(n > 0) {
         task1(() => loop(n-1))
+    } else {
+        console.log("done");
     }
 }
 
