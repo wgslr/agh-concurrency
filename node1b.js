@@ -1,6 +1,4 @@
-import waterfall from 'async/waterfall';
-
-waterfall([])
+const async = require("async");
 
 function printAsync(s, cb) {
    var delay = Math.floor((Math.random()*1000)+500);
