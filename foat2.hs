@@ -49,12 +49,13 @@ gather stacks = gather' stacks []
 -- | Pop values from stacks to generate result
 gather' :: Stacks -> [[Char]] -> [[Char]]
 gather' stacks results = case pop stacks of
-  ([], _) -> reverse . filter (/= []) $ results
-  (letters, stacks') -> gather' stacks' ((filter (/= '*') letters) : results) 
+  [] -> reverse results
+  tops -> gather' (foldl (\ss l ->  Map.update (\(x:xs) -> Just xs) l ss) stacks dps) (filter (/= '*') tops : results)
+        where dps = concat $ map (\x -> deps x alphabet) $ filter (/= '*') tops
 
 -- | Get heads of all stacks
-pop :: (Map.Map Char [Char]) -> ([Char], Stacks)
-pop stacks = (concat . map head' . Map.elems $ stacks, Map.map tail' stacks)
+pop :: (Map.Map Char [Char]) -> [Char]
+pop = concat . map head' . Map.elems
 
 -- | List dependencies of a char in given alphabet
 deps :: Char -> [Char] -> [Char]
@@ -68,6 +69,7 @@ headLetter = listToMaybe . filter (/= '*') . map head . Map.elems
 head' :: [a] -> [a]
 head' [] = []
 head' (x:_) = [x]
+
 
 -- | Empty list-safe tail
 tail' :: [a] -> [a]
