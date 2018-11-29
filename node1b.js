@@ -45,4 +45,10 @@ function loop(n) {
     }
 }
 
-loop(4);
+// loop(4);
+
+console.log("Starting waterfall")
+
+async.waterfall([
+    printAsync, printAsync, printAsync
+])
