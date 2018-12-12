@@ -1,7 +1,7 @@
 const EXP = 1.5;
 const MAX_EAT = 500;
 
-var Fork = function () {
+const Fork = function () {
     this.state = 0;
     return this;
 }
@@ -31,7 +31,7 @@ Fork.prototype.release = function () {
     this.state = 0;
 }
 
-var Philosopher = function (id, forks) {
+const Philosopher = function (id, forks) {
     this.id = id;
     this.forks = forks;
     this.f1 = id % forks.length;
