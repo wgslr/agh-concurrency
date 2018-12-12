@@ -62,21 +62,31 @@ Philosopher.prototype.startNaive = function (count) {
             }, eatTime);
         })
     });
-
-    // zaimplementuj rozwiazanie naiwne
-    // kazdy filozof powinien 'count' razy wykonywac cykl
-    // podnoszenia widelcow -- jedzenia -- zwalniania widelcow
 }
 
 Philosopher.prototype.startAsym = function (count) {
-    var forks = this.forks,
-        f1 = this.f1,
-        f2 = this.f2,
-        id = this.id;
+    const id = this.id;
+    const f1 = this.forks[id % 2 == 0 ? this.f1 : this.f2];
+    const f2 = this.forks[id % 2 == 0 ? this.f2 : this.f1];
 
-    // zaimplementuj rozwiazanie asymetryczne
-    // kazdy filozof powinien 'count' razy wykonywac cykl
-    // podnoszenia widelcow -- jedzenia -- zwalniania widelcow
+    if (count <= 0) {
+        return;
+    }
+
+    f1.acquire(() => {
+        console.log(`${id} got fork ${this.f1}`);
+        f2.acquire(() => {
+            console.log(`${id} got fork ${this.f2}`);
+            const eatTime = Math.random() * MAX_EAT;
+            console.log(`${id} eating for ${eatTime}`);
+            setTimeout(() => {
+                console.log(`${id} finished`);
+                f1.release();
+                f2.release();
+                this.startNaive(count - 1);
+            }, eatTime);
+        })
+    });
 }
 
 Philosopher.prototype.startConductor = function (count) {
@@ -103,5 +113,6 @@ for (var i = 0; i < N; i++) {
 }
 
 for (var i = 0; i < N; i++) {
-    philosophers[i].startNaive(100);
+    // philosophers[i].startNaive(10);
+    philosophers[i].startAsym(10);
 }
