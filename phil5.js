@@ -38,10 +38,9 @@ function beb(pred, action, backoff) {
 }
 
 Philosopher.prototype.startNaive = function (count) {
-    let forks = this.forks,
-        f1 = this.f1,
-        f2 = this.f2,
-        id = this.id;
+    const f1 = this.forks[this.f1];
+    const f2 = this.forks[this.f2];
+    const id = this.id;
 
     if (count <= 0) {
         return;
@@ -58,8 +57,9 @@ Philosopher.prototype.startNaive = function (count) {
                     const eatTime = Math.random() * MAX_EAT;
                     console.log(`${id} eating for ${eatTime}`);
                     setTimeout(() => {
-                        f0.state = f1.state = 0;
-                    console.log(`${id} finished`);
+                        console.log(`${id} finished`);
+                        f1.release();
+                        f2.release();
                         this.startNaive(count - 1);
                     }, eatTime);
                 },
