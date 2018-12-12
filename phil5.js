@@ -1,3 +1,6 @@
+const BACKOFF = 10;
+const EXP = 2;
+const MAX_EAT = 3000;
 
 var Fork = function () {
     this.state = 0;
@@ -24,11 +27,46 @@ var Philosopher = function (id, forks) {
     return this;
 }
 
+function beb(pred, action, backoff) {
+    if (pred()) {
+        action();
+    } else {
+        console.log(`Predicate ${pred} false`);
+        backoff *= EXP;
+        setTimeout(beb, backoff, pred, action, backoff);
+    }
+}
+
 Philosopher.prototype.startNaive = function (count) {
-    var forks = this.forks,
+    let forks = this.forks,
         f1 = this.f1,
         f2 = this.f2,
         id = this.id;
+
+    if (count <= 0) {
+        return;
+    }
+
+    beb(() => f1.state == 0,
+        () => {
+            f1.state == 1;
+            console.log(`${id} got fork 1`);
+            beb(() => f2.state == 0,
+                () => {
+                    console.log(`${id} got fork 2`);
+                    f2.state = 1;
+                    const eatTime = Math.random() * MAX_EAT;
+                    console.log(`${id} eating for ${eatTime}`);
+                    setTimeout(() => {
+                        f0.state = f1.state = 0;
+                    console.log(`${id} finished`);
+                        this.startNaive(count - 1);
+                    }, eatTime);
+                },
+                BACKOFF
+            )
+        },
+        BACKOFF);
 
     // zaimplementuj rozwiazanie naiwne
     // kazdy filozof powinien 'count' razy wykonywac cykl
