@@ -7,14 +7,14 @@ var Fork = function () {
 }
 
 function beb(pred, action, backoff) {
-    setTimeout(() => {
+    setTimeout(() =>{
         if (pred()) {
-            action();
-        } else {
-            // console.log(`Predicate ${pred} false`);
-            beb(pred, action, backoff * EXP);
-        }
-    }, backoff);
+        action();
+    } else {
+        // console.log(`Predicate ${pred} false`);
+        beb(pred, action, backoff * EXP);
+    }
+    }, Math.random() * backoff);
 }
 
 
@@ -24,7 +24,7 @@ Fork.prototype.acquire = function (cb) {
             this.state = 1;
             cb();
         },
-        1);
+        10);
 }
 
 Fork.prototype.release = function () {
