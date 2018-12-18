@@ -2,6 +2,8 @@ const EXP = 1.5;
 const MAX_EAT = 500;
 
 let totalBackoff = 0;
+let asymFinished = 0;
+let waiterFinished = 0;
 
 const Fork = function () {
     this.state = 0;
@@ -17,7 +19,7 @@ function beb(pred, action, backoff) {
             totalBackoff += backoff;
             beb(pred, action, backoff);
         }
-    }, Math.random() * backoff);
+    }, backoff);
 }
 
 Fork.prototype.acquire = function (cb) {
@@ -33,8 +35,9 @@ Fork.prototype.release = function () {
     this.state = 0;
 }
 
-const Waiter = function () {
+const Waiter = function (maximum) {
     this.count = 0;
+    this.maximum = maximum;
     return this;
 }
 
@@ -43,10 +46,9 @@ Waiter.prototype.free = function (cb) {
 }
 
 Waiter.prototype.acquire = function (cb) {
-    beb(() => this.count < 4,
+    beb(() => this.count < this.maximum,
         () => {
             this.count++;
-            console.log(`waiter count ${this.count}`);
             cb();
         },
         1);
@@ -85,12 +87,13 @@ const Philosopher = function (id, forks) {
 //     });
 // }
 
-Philosopher.prototype.startAsym = function (count) {
+Philosopher.prototype.startAsym = function (count, cb) {
     const id = this.id;
     const f1 = this.forks[id % 2 == 0 ? this.f1 : this.f2];
     const f2 = this.forks[id % 2 == 0 ? this.f2 : this.f1];
 
     if (count <= 0) {
+        cb();
         return;
     }
 
@@ -101,21 +104,22 @@ Philosopher.prototype.startAsym = function (count) {
             const eatTime = Math.random() * MAX_EAT;
             // console.log(`asym ${id} eating for ${eatTime}`);
             setTimeout(() => {
-                console.log(`asym ${id} finished ${11 - count}th time`);
+                console.error(`startAsym ${id} finished ${11 - count}th time`);
                 f1.release();
                 f2.release();
-                this.startAsym(count - 1);
+                this.startAsym(count - 1, cb);
             }, eatTime);
         })
     });
 }
 
-Philosopher.prototype.startConductor = function (count, waiter) {
+Philosopher.prototype.startConductor = function (count, waiter, cb) {
     const f1 = this.forks[this.f1];
     const f2 = this.forks[this.f2];
     const id = this.id;
 
     if (count <= 0) {
+        cb();
         return;
     }
 
@@ -127,11 +131,11 @@ Philosopher.prototype.startConductor = function (count, waiter) {
                 const eatTime = Math.random() * MAX_EAT;
                 // console.log(`wait ${id} eating for ${eatTime}`);
                 setTimeout(() => {
-                    console.log(`wait ${id} finished ${11 - count}th time`);
+                    console.error(`startConductor ${id} finished ${11 - count}th time`);
                     f1.release();
                     f2.release();
                     waiter.free();
-                    this.startConductor(count - 1, waiter);
+                    this.startConductor(count - 1, waiter, cb);
                 }, eatTime);
             })
         });
@@ -140,6 +144,10 @@ Philosopher.prototype.startConductor = function (count, waiter) {
 
 
 var N = 5;
+if(process.argv.length > 2) {
+    N = process.argv[2];
+}
+
 var forks = [];
 var philosophers = []
 for (var i = 0; i < N; i++) {
@@ -150,18 +158,31 @@ for (var i = 0; i < N; i++) {
     philosophers.push(new Philosopher(i, forks));
 }
 
-for (var i = 0; i < N; i++) {
-    // philosophers[i].startNaive(10);
-    philosophers[i].startAsym(10);
-}
-setTimeout(() => {
-    console.log(`asym; ${totalBackoff}`);
-    console.log("\n\n");
-    const waiter = new Waiter();
+function runAsym(cb) {
+    totalBackoff = 0
     for (var i = 0; i < N; i++) {
-        philosophers[i].startConductor(10, waiter);
+        // philosophers[i].startNaive(10);
+        philosophers[i].startAsym(10, () => {
+            ++asymFinished;
+            if(asymFinished == N) {
+                console.log(`asym; ${N}; ${totalBackoff}`);
+                cb();
+            }
+        });
     }
-    setTimeout(() => {
-        console.log(`waiter; ${totalBackoff}`);
-    }, 25000);
-}, 25000);
+}
+
+function runWaiter() {
+    totalBackoff = 0;
+    const waiter = new Waiter(N - 1);
+    for (var i = 0; i < N; i++) {
+        philosophers[i].startConductor(10, waiter, () => {
+            ++waiterFinished
+            if(waiterFinished == N) {
+                console.log(`waiter; ${N}; ${totalBackoff}`);
+            }
+        });
+    }
+}
+
+runAsym(runWaiter);
